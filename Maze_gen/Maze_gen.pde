@@ -1,60 +1,96 @@
-int cs=100;
+float cs=20;
 ArrayList<PVector> log=new ArrayList<PVector>();
 int pos=0;
 int x;
 int y;
-boolean fast=false;
-boolean og[][];
+int sx;
+int sy;
+int fx;
+int fy;
+int px;
+int py;
+int sh=0;
+int shm=200;
+float cx;
+float cy;
+float zoom=1;
+float ccs;
+boolean set=false;
+boolean fast=true;
 boolean grid[][];
-boolean finished=true;
+boolean finished=false;
 void setup() {
   fullScreen();
-  grid=new boolean[width/cs][height/cs];
-  og=new boolean[width/cs][height/cs];
-  for(int x=0; x<width/cs; x++) {
-    for(int y=0; y<height/cs; y++) {
+  grid=new boolean[round(width/cs)][round(height/cs)];
+  for(int x=0; x<round(width/cs); x++) {
+    for(int y=0; y<round(height/cs); y++) {
       grid[x][y]=false;
-      og[x][y]=false;
     }  
   }
   x=0;
-  y=height/cs/2;
+  y=round(height/cs/2);
+  sx=x;
+  sy=y;
   background(0);
+  //frameRate(2);
+  noStroke();
 }
 
 void draw() {
-  for(int i=0; i<1; i++) {
-    if(!finished) {
-      next();
+  if(!finished) {
+    fast=true;
+    for(int i=0; i<1; i++) {
+      if(!finished) {
+        next();
+      }
     }
   }
-  for(int xx=0; xx<width/cs; xx++) {
-    for(int yy=0; yy<height/cs; yy++) {
-      if(fast) {
-        if(grid[xx][yy]!=og[xx][yy]) {
+  else {
+    if(!set) {
+      sh++;
+      fast=false;
+      fill(0);       
+      if(sh>shm/2) zoom+=4/float(shm/2);
+      else rect(width-((width-height)/(shm/2))*sh,0,height/(shm/2),height);
+      if(sh>shm) set=true;
+    } 
+    
+    ccs=round(height/zoom/cs/2);
+    
+    cx=px*cs+cs/2;
+    cy=py*cs+cs/2;
+    
+    if(cx-ccs*cs<0) {
+      cx=ccs;  
+    }
+    if(cy-ccs*cs<0) {
+      cy=ccs;  
+    }
+    if(cx/cs+ccs>height/cs) {
+      cx=height-ccs*cs;  
+    }
+    if(cy/cs+ccs>height/cs) {
+      cy=height-ccs*cs;  
+    }
+  }
+  if(!fast) {
+    if(sh>shm/2) {
+      fill(0);
+      
+      for(int xx=floor(cx/cs-ccs); xx<ceil(cx/cs+ccs); xx++) {
+        for(int yy=floor(cy/cs-ccs); yy<ceil(cy/cs+ccs); yy++) {
           if(grid[xx][yy]) {
             fill(255);  
           }
           else {
-            fill(0);
+            fill(0);  
           }
-          rect(xx*cs,yy*cs,cs,cs);
-        } 
+          rect((xx-floor(cx/cs-ccs))*cs*zoom,(yy-floor(cy/cs-ccs))*cs*zoom,cs*zoom,cs*zoom);
+        }
       }
-      else {
-        if(grid[xx][yy]) {
-          fill(255);  
-        }
-        else {
-          fill(0);
-        }
-        if(xx==x && yy==y) {  
-          fill(255,0,0);
-        }
-        rect(xx*cs,yy*cs,cs,cs);
-      }
+      rect(height,0,width-height,height);
     }
-  }  
+  }
 }
 
 void next() {
@@ -103,8 +139,11 @@ void next() {
     if(pos>=log.size()-1) {
       finished=true;  
       temp.add(new PVector(x,y));
+      fx=round(log.get(round(log.size()/1.4)).x);
+      fy=round(log.get(round(log.size()/1.4)).y);
+      px=sx;
+      py=sy;
     }
-    println(pos);
     x=round(log.get(log.size()-pos).x);
     y=round(log.get(log.size()-pos).y);
     x1=x-2;
@@ -135,26 +174,44 @@ void next() {
  
   if(!finished) {
     int rand=round(random(0,temp.size()-1));
-    og[x][y]=grid[x][y];
     grid[x][y]=true;
     log.add(new PVector(x,y));
     if(x>round(temp.get(rand).x)) {
-      og[x-1][y]=grid[x-1][y];
-      grid[x-1][y]=true;    
+      grid[x-1][y]=true;
+      if(fast) {
+        fill(255);
+        rect(x*cs,y*cs,cs,cs);
+        rect((x-1)*cs,y*cs,cs,cs);
+        rect(round(temp.get(rand).x)*cs,round(temp.get(rand).y)*cs,cs,cs);
+      }
     }
     if(x<round(temp.get(rand).x)) {
-      og[x+1][y]=grid[x+1][y];
-      grid[x+1][y]=true;   
+      grid[x+1][y]=true;  
+      if(fast) {
+        fill(255);
+        rect(x*cs,y*cs,cs,cs);
+        rect((x+1)*cs,y*cs,cs,cs);
+        rect(round(temp.get(rand).x)*cs,round(temp.get(rand).y)*cs,cs,cs);
+      }
     }
     if(y>round(temp.get(rand).y)) {
-      og[x][y-1]=grid[x][y-1];
-      grid[x][y-1]=true;    
+      grid[x][y-1]=true;  
+      if(fast) {
+        fill(255);
+        rect(x*cs,y*cs,cs,cs);
+        rect(x*cs,(y-1)*cs,cs,cs);
+        rect(round(temp.get(rand).x)*cs,round(temp.get(rand).y)*cs,cs,cs);
+      }
     }
     if(y<round(temp.get(rand).y)) {
-      og[x][y+1]=grid[x][y+1];
-      grid[x][y+1]=true;   
+      grid[x][y+1]=true; 
+      if(fast) {
+        fill(255);
+        rect(x*cs,y*cs,cs,cs);
+        rect(x*cs,(y+1)*cs,cs,cs);
+        rect(round(temp.get(rand).x)*cs,round(temp.get(rand).y)*cs,cs,cs);
+      }
     }
-    og[round(temp.get(rand).x)][round(temp.get(rand).y)]=grid[round(temp.get(rand).x)][round(temp.get(rand).y)];
     grid[round(temp.get(rand).x)][round(temp.get(rand).y)]=true;
     x=round(temp.get(rand).x);
     y=round(temp.get(rand).y);
