@@ -10,7 +10,7 @@ int fy;
 int px;
 int py;
 int sh=0;
-int shm=200;
+int shm=100;
 float cx;
 float cy;
 float zoom=1;
@@ -39,18 +39,19 @@ void setup() {
 void draw() {
   if(!finished) {
     fast=true;
-    for(int i=0; i<1; i++) {
+    for(int i=0; i<10; i++) {
       if(!finished) {
         next();
       }
     }
   }
   else {
+    
     if(!set) {
       sh++;
       fast=false;
       fill(0);       
-      if(sh>shm/2) zoom+=4/float(shm/2);
+      if(sh>shm/2) zoom+=6/float(shm/2);
       else rect(width-((width-height)/(shm/2))*sh,0,height/(shm/2),height);
       if(sh>shm) set=true;
     } 
@@ -61,34 +62,89 @@ void draw() {
     cy=py*cs+cs/2;
     
     if(cx-ccs*cs<0) {
-      cx=ccs;  
+      cx=ccs*cs;  
     }
     if(cy-ccs*cs<0) {
-      cy=ccs;  
+      cy=ccs*cs;  
     }
-    if(cx/cs+ccs>height/cs) {
-      cx=height-ccs*cs;  
+    if(cx+ccs*cs>=width) {
+      cx=width-ccs*cs;  
     }
-    if(cy/cs+ccs>height/cs) {
+    if(cy+ccs*cs>=height) {
       cy=height-ccs*cs;  
     }
   }
   if(!fast) {
     if(sh>shm/2) {
-      fill(0);
       
-      for(int xx=floor(cx/cs-ccs); xx<ceil(cx/cs+ccs); xx++) {
-        for(int yy=floor(cy/cs-ccs); yy<ceil(cy/cs+ccs); yy++) {
+      if(keyPressed) {
+        switch(key) {
+          case 'w':
+            if(py>0) {
+              if(grid[px][py-1]) {
+                py--;  
+              }
+            }
+          break;
+          case 'a':
+            if(px>0) {
+              if(grid[px-1][py]) {
+                px--;
+              }
+            }
+          break;
+          case 's':
+            if(py<height/cs-1) {
+              if(grid[px][py+1]) {
+                py++;  
+              }
+            }
+          break;
+          case 'd':
+            if(px<width/cs) {
+              if(grid[px+1][py]) {
+                px++;  
+              }
+            }
+          break;
+        }  
+      }
+      
+      for(int xx=floor((cx/cs)-ccs); xx<ceil((cx/cs)+ccs)+1; xx++) {
+        for(int yy=floor((cy/cs)-ccs); yy<ceil((cy/cs)+ccs)+1; yy++) {
           if(grid[xx][yy]) {
             fill(255);  
           }
           else {
             fill(0);  
           }
+          if(xx==sx && yy==sy) {
+            fill(0,255,0);  
+          }
+          if(xx==fx && yy==fy) {
+            fill(0,0,255);  
+          }
+          if(xx==px && yy==py) {
+            fill(255,0,0);  
+          }
           rect((xx-floor(cx/cs-ccs))*cs*zoom,(yy-floor(cy/cs-ccs))*cs*zoom,cs*zoom,cs*zoom);
         }
       }
+      fill(0);
       rect(height,0,width-height,height);
+      strokeWeight(8);
+      stroke(100);
+      float ppx = height+(width-height)/3 + cos(-(abs(px-fx)/abs(py-fy))*400)*(width-height)/4;
+      float ppy = (width-height)/3 + sin(-(abs(px-fx)/abs(py-fy))*400)*(width-height)/4;
+      line(height+(width-height)/3,(width-height)/3-(width-height)/4,height+(width-height)/3,(width-height)/3+(width-height)/4);
+      line(height+(width-height)/3-(width-height)/4,(width-height)/3,height+(width-height)/3+(width-height)/4,(width-height)/3);
+      strokeWeight(12);
+      noFill();
+      stroke(255);
+      ellipse(height+(width-height)/3,(width-height)/3,(width-height)/2,(width-height)/2);
+      stroke(0,255,0);
+      line(height+(width-height)/3,(width-height)/3,ppx,ppy);
+      noStroke();
     }
   }
 }
