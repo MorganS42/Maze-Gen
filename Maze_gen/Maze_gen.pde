@@ -173,7 +173,7 @@ void draw() {
       float ppx;
       float ppy;
       
-      if(px>fx) {
+      if(px>=fx) {
         ppx = height+(width-height)/3 + -cos(angle)*(width-height)/4;
         ppy = (width-height)/3 + -sin(angle)*(width-height)/4;     
       }
