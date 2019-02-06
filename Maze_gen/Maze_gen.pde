@@ -9,6 +9,9 @@ int fx;
 int fy;
 int px;
 int py;
+
+int pf=10;
+
 int sh=0;
 int shm=100;
 float cx;
@@ -19,6 +22,7 @@ boolean set=false;
 boolean fast=true;
 boolean grid[][];
 boolean finished=false;
+boolean hacks=true;
 void setup() {
   fullScreen();
   grid=new boolean[round(width/cs)][round(height/cs)];
@@ -36,6 +40,12 @@ void setup() {
   noStroke();
 }
 
+void mousePressed() {
+  if(hacks) {
+    grid[round((mouseX+cx)/cs/zoom)][round((mouseY+cy)/cs/zoom)]=!grid[round((mouseX+cx)/cs/zoom)][round((mouseY+cy)/cs/zoom)];  
+  }
+}
+
 void draw() {
   if(!finished) {
     fast=true;
@@ -51,7 +61,7 @@ void draw() {
       sh++;
       fast=false;
       fill(0);       
-      if(sh>shm/2) zoom+=6/float(shm/2);
+      if(sh>shm/2) zoom+=6/(float(shm)/2);
       else rect(width-((width-height)/(shm/2))*sh,0,height/(shm/2),height);
       if(sh>shm) set=true;
     } 
@@ -67,47 +77,72 @@ void draw() {
     if(cy-ccs*cs<0) {
       cy=ccs*cs;  
     }
-    if(cx+ccs*cs>=width) {
-      cx=width-ccs*cs;  
+    if(cx/cs+ccs>=width/cs) {
+      cx=(width/cs-ccs-1)*cs;  
     }
-    if(cy+ccs*cs>=height) {
-      cy=height-ccs*cs;  
+    if(cy/cs+ccs>=height/cs) {
+      cy=(height/cs-ccs-1)*cs;  
     }
   }
   if(!fast) {
     if(sh>shm/2) {
       
       if(keyPressed) {
+        pf*=1.04;  
+      }
+      else {
+        pf=30;  
+      }
+      
+      if(pf%round(1/float(pf)*100+1)==0 && keyPressed) {
         switch(key) {
           case 'w':
             if(py>0) {
-              if(grid[px][py-1]) {
+              if(grid[px][py-1] || hacks) {
                 py--;  
               }
             }
           break;
           case 'a':
             if(px>0) {
-              if(grid[px-1][py]) {
+              if(grid[px-1][py] || hacks) {
                 px--;
               }
             }
           break;
           case 's':
             if(py<height/cs-1) {
-              if(grid[px][py+1]) {
+              if(grid[px][py+1] || hacks) {
                 py++;  
               }
             }
           break;
           case 'd':
             if(px<width/cs) {
-              if(grid[px+1][py]) {
+              if(grid[px+1][py] || hacks) {
                 px++;  
               }
             }
           break;
-        }  
+        }
+        
+        ccs=round(height/zoom/cs/2);
+    
+        cx=px*cs+cs/2;
+        cy=py*cs+cs/2;
+        
+        if(cx-ccs*cs<0) {
+          cx=ccs*cs;  
+        }
+        if(cy-ccs*cs<0) {
+          cy=ccs*cs;  
+        }
+        if(cx/cs+ccs>=width/cs) {
+          cx=(width/cs-ccs-1)*cs;  
+        }
+        if(cy/cs+ccs>=height/cs) {
+          cy=(height/cs-ccs-1)*cs;  
+        }
       }
       
       for(int xx=floor((cx/cs)-ccs); xx<ceil((cx/cs)+ccs)+1; xx++) {
@@ -134,8 +169,19 @@ void draw() {
       rect(height,0,width-height,height);
       strokeWeight(8);
       stroke(100);
-      float ppx = height+(width-height)/3 + cos(-(abs(px-fx)/abs(py-fy))*400)*(width-height)/4;
-      float ppy = (width-height)/3 + sin(-(abs(px-fx)/abs(py-fy))*400)*(width-height)/4;
+      float angle=atan((float(py)-float(fy))/(float(px)-float(fx)));
+      float ppx;
+      float ppy;
+      
+      if(px>fx) {
+        ppx = height+(width-height)/3 + -cos(angle)*(width-height)/4;
+        ppy = (width-height)/3 + -sin(angle)*(width-height)/4;     
+      }
+      else {
+        ppx = height+(width-height)/3 + cos(angle)*(width-height)/4;
+        ppy = (width-height)/3 + sin(angle)*(width-height)/4;  
+      }
+      
       line(height+(width-height)/3,(width-height)/3-(width-height)/4,height+(width-height)/3,(width-height)/3+(width-height)/4);
       line(height+(width-height)/3-(width-height)/4,(width-height)/3,height+(width-height)/3+(width-height)/4,(width-height)/3);
       strokeWeight(12);
