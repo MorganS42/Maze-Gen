@@ -1,4 +1,4 @@
-float cs=20;
+float cs=1;
 ArrayList<PVector> log=new ArrayList<PVector>();
 int pos=0;
 int x;
@@ -22,9 +22,10 @@ boolean set=false;
 boolean fast=true;
 boolean grid[][];
 boolean finished=false;
-boolean hacks=true;
+boolean hacks=false;
 void setup() {
   fullScreen();
+  //size(540,150);
   grid=new boolean[round(width/cs)][round(height/cs)];
   for(int x=0; x<round(width/cs); x++) {
     for(int y=0; y<round(height/cs); y++) {
@@ -38,6 +39,8 @@ void setup() {
   background(0);
   //frameRate(2);
   noStroke();
+  
+  //frameRate(3);
 }
 
 void mousePressed() {
@@ -49,7 +52,7 @@ void mousePressed() {
 void draw() {
   if(!finished) {
     fast=true;
-    for(int i=0; i<10; i++) {
+    for(int i=0; i<10000; i++) {
       if(!finished) {
         next();
       }
@@ -61,7 +64,7 @@ void draw() {
       sh++;
       fast=false;
       fill(0);       
-      if(sh>shm/2) zoom+=6/(float(shm)/2);
+      if(sh>shm/2) zoom+=100/(float(shm)/2);
       else rect(width-((width-height)/(shm/2))*sh,0,height/(shm/2),height);
       if(sh>shm) set=true;
     } 
@@ -77,11 +80,11 @@ void draw() {
     if(cy-ccs*cs<0) {
       cy=ccs*cs;  
     }
-    if(cx/cs+ccs>=width/cs) {
-      cx=(width/cs-ccs-1)*cs;  
+    if(cx/cs+ccs>=width/cs-1) {
+      cx=width-ccs*cs-cs*2;  
     }
-    if(cy/cs+ccs>=height/cs) {
-      cy=(height/cs-ccs-1)*cs;  
+    if(cy/cs+ccs>=height/cs-1) {
+      cy=height-ccs*cs-cs*2;  
     }
   }
   if(!fast) {
@@ -111,14 +114,14 @@ void draw() {
             }
           break;
           case 's':
-            if(py<height/cs-1) {
+            if(py<=height/cs-1) {
               if(grid[px][py+1] || hacks) {
                 py++;  
               }
             }
           break;
           case 'd':
-            if(px<width/cs) {
+            if(px<=width/cs-1) {
               if(grid[px+1][py] || hacks) {
                 px++;  
               }
@@ -137,11 +140,11 @@ void draw() {
         if(cy-ccs*cs<0) {
           cy=ccs*cs;  
         }
-        if(cx/cs+ccs>=width/cs) {
-          cx=(width/cs-ccs-1)*cs;  
+        if(cx/cs+ccs>=width/cs-1) {
+          cx=width-ccs*cs-cs*2;  
         }
-        if(cy/cs+ccs>=height/cs) {
-          cy=(height/cs-ccs-1)*cs;  
+        if(cy/cs+ccs>=height/cs-1) {
+          cy=height-ccs*cs-cs*2;  
         }
       }
       
@@ -200,20 +203,21 @@ void next() {
   int x2=x+2;
   int y1=y-2;
   int y2=y+2;
+  int lc = 40; //loop chance
   ArrayList<PVector> temp = new ArrayList<PVector>();
   if(y-2>=0) {
     if(!grid[x][y1]) {
       temp.add(new PVector(x,y1));    
     }
-    else if(round(random(0,100))==0) {
+    else if(round(random(0,lc))==0) {
       temp.add(new PVector(x,y1));   
     }
   }
-  if(y+2<height/cs) {
+  if(y+2<height/cs-1) {
     if(!grid[x][y2]) {
       temp.add(new PVector(x,y2));    
     }
-    else if(round(random(0,100))==0) {
+    else if(round(random(0,lc))==0) {
       temp.add(new PVector(x,y2));   
     }
   }
@@ -221,22 +225,24 @@ void next() {
     if(!grid[x1][y]) {
       temp.add(new PVector(x1,y)); 
     }
-    else if(round(random(0,100))==0) {
+    else if(round(random(0,lc))==0) {
       temp.add(new PVector(x1,y));   
     }
   }
-  if(x+2<width/cs) {
+  if(x+2<width/cs-1) {
     if(!grid[x2][y]) {
       temp.add(new PVector(x2,y)); 
     }
-    else if(round(random(0,100))==0) {
+    else if(round(random(0,lc))==0) {
       temp.add(new PVector(x2,y));   
     }
   }
   
   pos=0;
   
-  while(temp.size()==0) {
+  int lt =round(random(1,1));
+  
+  while(temp.size()<lt) {
     pos+=1;
     if(pos>=log.size()-1) {
       finished=true;  
@@ -257,7 +263,7 @@ void next() {
         temp.add(new PVector(x,y1));    
       }
     }
-    if(y+2<height/cs) {
+    if(y+2<height/cs-1) {
       if(!grid[x][y2]) {
         temp.add(new PVector(x,y2));    
       }
@@ -267,7 +273,7 @@ void next() {
         temp.add(new PVector(x1,y));    
       }
     }
-    if(x+2<width/cs) {
+    if(x+2<width/cs-1) {
       if(!grid[x2][y]) {
         temp.add(new PVector(x2,y)); 
       }
