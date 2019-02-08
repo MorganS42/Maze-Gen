@@ -1,4 +1,4 @@
-float cs=1;
+float cs=20;
 ArrayList<PVector> log=new ArrayList<PVector>();
 int pos=0;
 int x;
@@ -22,7 +22,7 @@ boolean set=false;
 boolean fast=true;
 boolean grid[][];
 boolean finished=false;
-boolean hacks=false;
+boolean hacks=true;
 void setup() {
   fullScreen();
   //size(540,150);
@@ -64,7 +64,7 @@ void draw() {
       sh++;
       fast=false;
       fill(0);       
-      if(sh>shm/2) zoom+=100/(float(shm)/2);
+      if(sh>shm/2) zoom+=(height/cs/10-1)/(float(shm)/2);
       else rect(width-((width-height)/(shm/2))*sh,0,height/(shm/2),height);
       if(sh>shm) set=true;
     } 
@@ -81,14 +81,33 @@ void draw() {
       cy=ccs*cs;  
     }
     if(cx/cs+ccs>=width/cs-1) {
-      cx=width-ccs*cs-cs*2;  
+      cx=width-ccs*cs;  
     }
     if(cy/cs+ccs>=height/cs-1) {
-      cy=height-ccs*cs-cs*2;  
+      cy=height-ccs*cs;  
     }
   }
   if(!fast) {
     if(sh>shm/2) {
+      if(px==fx && py==fy) {
+        x=0;
+        y=round(height/cs/2);
+        sx=x;
+        sy=y;
+        sh=0;
+        set=false;
+        fast=true;
+        zoom=1;
+        cs-=5;
+        finished=false;
+        grid=new boolean[round(width/cs)][round(height/cs)];
+        for(int x=0; x<round(width/cs); x++) {
+          for(int y=0; y<round(height/cs); y++) {
+            grid[x][y]=false;
+          }  
+        }
+      }
+      
       
       if(keyPressed) {
         pf*=1.04;  
@@ -114,14 +133,14 @@ void draw() {
             }
           break;
           case 's':
-            if(py<=height/cs-1) {
+            if(py<=height/cs-2) {
               if(grid[px][py+1] || hacks) {
                 py++;  
               }
             }
           break;
           case 'd':
-            if(px<=width/cs-1) {
+            if(px<=width/cs-2) {
               if(grid[px+1][py] || hacks) {
                 px++;  
               }
@@ -141,15 +160,17 @@ void draw() {
           cy=ccs*cs;  
         }
         if(cx/cs+ccs>=width/cs-1) {
-          cx=width-ccs*cs-cs*2;  
+          cx=width-ccs*cs;  
         }
         if(cy/cs+ccs>=height/cs-1) {
-          cy=height-ccs*cs-cs*2;  
+          cy=height-ccs*cs;  
         }
       }
       
-      for(int xx=floor((cx/cs)-ccs); xx<ceil((cx/cs)+ccs)+1; xx++) {
-        for(int yy=floor((cy/cs)-ccs); yy<ceil((cy/cs)+ccs)+1; yy++) {
+      background(0);
+      
+      for(int xx=floor((cx/cs)-ccs); xx<ceil((cx/cs)+ccs)-1; xx++) {
+        for(int yy=floor((cy/cs)-ccs); yy<ceil((cy/cs)+ccs)-1; yy++) {
           if(grid[xx][yy]) {
             fill(255);  
           }
